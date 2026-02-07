@@ -1,0 +1,19 @@
+# 1. 忽略 dataset 下的所有内容（保留 dataset 文件夹本身）
+dataset/*
+
+# 2. 针对第一个路径：逐级打开目录
+!dataset/最终的实验/
+dataset/最终的实验/*
+!dataset/最终的实验/主实验/
+dataset/最终的实验/主实验/*
+!dataset/最终的实验/主实验/trace_85_glm-4.7_think_final1/
+
+# 3. 针对第二个路径：逐级打开目录
+!dataset/SFT/
+dataset/SFT/*
+!dataset/SFT/主实验/
+dataset/SFT/主实验/*
+!dataset/SFT/主实验/trace_85_glm-4.7_think_final1/
+
+models/
+outputs/

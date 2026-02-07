@@ -1,0 +1,277 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "table_selector",
+      "description": "Type: Semantic Retrieval. Target table localization via semantic retrieval. This semantic query matches actual table preview content with the provided query.\n **Applicable Scenarios**:\n1. Fast retrieval when there are many files.\n2. When table names, paths, and other external info cannot locate the table, and identifying it requires specific content. For example: non-standard filenames, filenames that don't reflect content, or searching for tables containing specific business meanings (e.g., 'sales revenue', 'Q1 financial report').\n3. Rich semantic info in the query improves retrieval accuracy. For example, query='Table containing statistics for first-quarter sales revenue' is better than simple 'sales'.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Query description. **Strongly recommend using complete descriptive sentences** instead of single keywords to improve semantic matching accuracy."
+          },
+          "folder_path": {
+            "type": "string",
+            "description": "Absolute path of the table folder to retrieve from"
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Number of tables to return, default is 10"
+          }
+        },
+        "required": [
+          "query",
+          "folder_path"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "header_merger",
+      "description": "Type: Table Processing. Intelligently merges multi-line headers in CSV files into a single row, using '-' to represent hierarchical relationships.\n**Applicable Scenarios**:\n1. Flattening long multi-level headers for single tables, supporting subsequent behaviors like field retrieval, filtering, comparison, and aggregation.\n2. Not suitable for CSV files containing multiple sub-tables.\n3. Input: CSV file path and number of header rows; Output: Standardized CSV file.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "csv_path": {
+            "type": "string",
+            "description": "Full path to the CSV file"
+          },
+          "header_rows": {
+            "type": "integer",
+            "description": "Number of rows occupied by the complex header (first N rows), to be determined by the model based on file content"
+          },
+          "output_path": {
+            "type": "string",
+            "description": "Absolute path for the output file; if empty, '_merged' is appended to the original filename"
+          }
+        },
+        "required": [
+          "csv_path",
+          "header_rows"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "complex_table_parser_v2",
+      "description": "Type: Table Understanding. Specialized processing tool for extra-large (over 50 rows, 20 columns) non-standard tables.\nKey features:\n1.【Table Structure Reconstruction】(Type A): Suitable for tables where data rows contain hierarchical structures or many merged cells (vertical/horizontal) besides header column information. Converts these tables into standard 2D tables.\n2.【Header Flattening】(Type B): Flattens complex multi-level headers into a 1D relational table;\n> Note: Only suitable for large tables.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "csv_path": {
+            "type": "string",
+            "description": "Absolute path to the CSV file (only .csv format supported). For xlsx files, first convert them to csv."
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Absolute path to the output directory, defaults to creating one under the source file directory"
+          }
+        },
+        "required": [
+          "csv_path"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "xlsx_to_csv_converter",
+      "description": "Type: Table Processing. Converts xlsx files to csv files, supporting multi-sheet splitting and merged cell filling. It can split an xlsx file containing multiple sheets into multiple csv files, returning the paths of the split csv files and related local preview information.\n**Applicable Scenarios**:\n1. Suitable as a preprocessing step for complex, ultra-long table analysis.\n2. Suitable for decomposing xlsx into multiple intuitive csv files.\n",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "xlsx_path": {
+            "type": "string",
+            "description": "Absolute path of the xlsx file"
+          },
+          "sheet_names": {
+            "type": "array",
+            "description": "List of sheet names to convert, if empty converts all sheets",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "xlsx_path"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "table_head_reader",
+      "description": "Type: Table Processing. Reads specified lines from a table file. Requires start line and row count, returns file path, total rows, and content (line number + content, line numbers start from 1). Used for quick preview of table data structure.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "Absolute path to the table file (supports csv, xlsx, xls)."
+          },
+          "start": {
+            "type": "integer",
+            "description": "Starting line number (1-indexed), defaults to 1"
+          },
+          "n": {
+            "type": "integer",
+            "description": "Number of lines to read starting from the start line, defaults to 10"
+          }
+        },
+        "required": [
+          "file_path"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "semantic_row_retriever",
+      "description": "Type: Semantic Retrieval. Performs semantic search for query-related data rows in specified files or folders. Matches semantic patterns between specific row data and questions. Unlike table locator, this enables finer-grained row data positioning.\n**Applicable Scenarios**: 1. When tables have extremely many rows (long tables) that cannot be read at once, and rows containing specific semantic information (not exact keywords) need to be found. 2. When the question cannot be accurately retrieved using keyword search.\n**Example**: Input query='Find sales records related to iPhone 15 Pro', can match rows containing relevant descriptions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute path to table files or folders (supports csv, tsv)"
+          },
+          "query": {
+            "type": "string",
+            "description": "Query text. It's recommended to use complete natural language describing characteristics of the query content, e.g., 'Find sales records containing Huawei Mate 60'. Richer query information helps improve retrieval accuracy."
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Number of rows to return, defaults to 10"
+          }
+        },
+        "required": [
+          "path",
+          "query"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "semantic_column_retriever",
+      "description": "Type: Semantic Retrieval. Based on semantic retrieval to find relevant table columns under specified files or folders for a given query. It uses column names and sample values for semantic matching. Different from table location, it enables finer-grained column positioning.\nApplicable Scenarios:\n• Quickly locate target fields in ultra-wide tables (50+ columns)\n• When table column names use professional abbreviations or codes that differ from user terminology, semantic retrieval is needed to find the most relevant columns in specified files or folders.\n• When user queries for indicators cannot be found directly through keyword searching in column names.\n**Example**: Input query='find column representing user age', can match 'u_age' or 'user_years'.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute path of table file or folder (supports csv, tsv)"
+          },
+          "query": {
+            "type": "string",
+            "description": "Query text, describing features of the column to find. It is recommended to use complete natural language descriptions, e.g., 'find columns representing sales amount'. Richer query information helps improve retrieval accuracy."
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Number of columns to return, defaults to 10"
+          }
+        },
+        "required": [
+          "path",
+          "query"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "python_code_executor",
+      "description": "Type: General Tool. Execute Python code and return results, the execution environment already supports various common libraries. Each code execution is stateless and requires complete code.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Python code to execute"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Execution timeout (seconds), default 30 seconds"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "cmd_executor",
+      "description": "Type: General Tool. Executes command line commands. Can be used for file browsing, searching, and file operations within the environment directory (specified in system prompt). Returns standard output and standard error. Dangerous commands will be rejected.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "The command line command to execute"
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Working directory for command execution. Must be the environment directory or its subdirectory."
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Command timeout in seconds, defaults to 30"
+          }
+        },
+        "required": [
+          "command",
+          "cwd"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "grep_search",
+      "description": "Type: Precise Table Retrieval. Precise regex search. In specified files or folders, use regex to precisely match strings, returning matching lines and their context information.\n    Returns matching lines. Supported file types include: csv, xlsx, xls, tsv, txt, py formats.\n    Supports complex Python regex (e.g., grouping, quantifiers, assertions, etc.).\n    By default, no fine-grained retrieval information is passed, first searching for all information in the specified path. If too many results are matched to be fully displayed, fine-grained retrieval for a specific file can be performed. Fine-grained retrieval is only suitable for file search.\n   **Applicable Scenarios**: Known exact keyword patterns (e.g., ID format, specific error code), but don't know which file it's in. Compared to keyword search in python_code_executor, it supports powerful regex for pattern matching.\n    **Example**: Find strings like 'ID-1234', pattern can be set to 'ID-\\d{4}'.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute path to specified file or folder"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Python-style regular expression. Supports complex patterns for precise matching (e.g., 'error|warning', '\\\\d{4}-\\\\d{2}', '(?<=def )\\\\w+', etc.). Please build a regex that can accurately hit the target. This regex will be directly compiled with re.compile to match in files."
+          },
+          "file_pattern": {
+            "type": "string",
+            "description": "Regex filter for filenames to search (only effective when searching folders), e.g., '\\\\.py$', enter a Python-style regex for filtering by filename."
+          },
+          "start_match_idx": {
+            "type": "integer",
+            "description": "Fine-grained retrieval mode, this parameter only applies to file search. Indicates the index of the matching items to start returning results from, 0 means starting from the first match."
+          },
+          "max_matches_to_show": {
+            "type": "integer",
+            "description": "Fine-grained retrieval mode, this parameter only applies to file search. Indicates the maximum number of matching items to return, defaults to 10, None means returning 10. Note: This parameter can only be filled in fine-grained mode!"
+          }
+        },
+        "required": [
+          "path",
+          "pattern"
+        ]
+      }
+    }
+  }
+]
